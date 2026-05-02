@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TikTokLiveSharp.Client;
 using UnifiedChat.Domain.Interfaces;
@@ -10,11 +11,14 @@ public class TikTokChatWorker : BackgroundService
     private readonly ILogger<TikTokChatWorker> _logger;
     private readonly IMessageBus _messageBus;
     private TikTokLiveClient? _client;
+    private readonly string _nick;
 
-    public TikTokChatWorker(ILogger<TikTokChatWorker> logger, IMessageBus messageBus)
+    public TikTokChatWorker(ILogger<TikTokChatWorker> logger, IMessageBus messageBus, IConfiguration configuration)
     {
         _logger = logger;
         _messageBus = messageBus;
+
+        _nick = configuration["TikTok:Nick"] ?? "";
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -22,9 +26,9 @@ public class TikTokChatWorker : BackgroundService
 
             try
             {
-                _logger.LogInformation($"[TikTok] Intentando conectar con el usuario: {tikTokUser}");
+                _logger.LogInformation($"[TikTok] Intentando conectar con el usuario: {_nick}");
 
-                _client = new TikTokLiveClient(uniqueID: tikTokUser);
+                _client = new TikTokLiveClient(uniqueID: _nick);
 
                 _client.OnRoomUpdate += (sender, e) =>
                 {
@@ -60,7 +64,7 @@ public class TikTokChatWorker : BackgroundService
                     }
                     catch (InvalidOperationException)
                     {
-                        _logger.LogWarning($"[TikTok] @{tikTokUser} parece estar fuera de línea.");
+                        _logger.LogWarning($"[TikTok] @{_nick} parece estar fuera de línea.");
                     }
                 }, stoppingToken);
 

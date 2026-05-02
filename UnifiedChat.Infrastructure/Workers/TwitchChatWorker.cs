@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TwitchLib.Client;
@@ -15,18 +16,27 @@ public class TwitchChatWorker : BackgroundService
     private readonly ILogger<TwitchChatWorker> _logger;
     private readonly IMessageBus _messageBus;
     private TwitchClient? _client;
-  
 
-    public TwitchChatWorker(ILogger<TwitchChatWorker> logger, IMessageBus messageBus)
+    private readonly string _nick;
+    private readonly string _token;
+    private readonly string _channel;
+
+    public TwitchChatWorker(ILogger<TwitchChatWorker> logger, IMessageBus messageBus, IConfiguration configuration)
     {
         _logger = logger;
         _messageBus = messageBus;
+
+        // IConfiguration leerá los secretos que guardaste en la API
+        _nick = configuration["Twitch:Nick"] ?? "";
+        _token = configuration["Twitch:Token"] ?? "";
+        _channel = configuration["Twitch:Channel"] ?? "";
     }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Iniciando Worker de Twitch...");
 
-        var credentials = new ConnectionCredentials(nick, token);
+        var credentials = new ConnectionCredentials(_nick, _token);
 
         var clientOptions = new ClientOptions
         {
@@ -37,7 +47,7 @@ public class TwitchChatWorker : BackgroundService
         WebSocketClient customClient = new WebSocketClient(clientOptions);
         _client = new TwitchClient(customClient);
 
-        _client.Initialize(credentials, channel);
+        _client.Initialize(credentials, _channel);
 
         _client.OnMessageReceived += async (s, e) => {
             if (string.IsNullOrEmpty(e.ChatMessage.Message))
@@ -64,7 +74,7 @@ public class TwitchChatWorker : BackgroundService
         };
 
         _client.OnConnected += (s, e) =>
-            _logger.LogInformation($"Conectado exitosamente a Twitch como {nick}");
+            _logger.LogInformation($"Conectado exitosamente a Twitch como {_nick}");
 
         _client.OnConnectionError += (s, e) =>
             _logger.LogError($"Error de conexión: {e.Error.Message}");
