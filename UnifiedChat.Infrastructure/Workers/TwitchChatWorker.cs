@@ -15,9 +15,7 @@ public class TwitchChatWorker : BackgroundService
     private readonly ILogger<TwitchChatWorker> _logger;
     private readonly IMessageBus _messageBus;
     private TwitchClient? _client;
-    private string nick = "diegohoyoscol";
-    private string token = "oauth:pfpluxtkv7cbrpofy5lswzj8wwzb7m";
-    private string channel = "diegohoyoscol";
+  
 
     public TwitchChatWorker(ILogger<TwitchChatWorker> logger, IMessageBus messageBus)
     {

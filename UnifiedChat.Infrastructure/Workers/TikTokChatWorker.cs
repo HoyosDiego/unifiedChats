@@ -10,7 +10,6 @@ public class TikTokChatWorker : BackgroundService
     private readonly ILogger<TikTokChatWorker> _logger;
     private readonly IMessageBus _messageBus;
     private TikTokLiveClient? _client;
-    private string tikTokUser = "diegohoyoscol";
 
     public TikTokChatWorker(ILogger<TikTokChatWorker> logger, IMessageBus messageBus)
     {
