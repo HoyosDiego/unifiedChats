@@ -3,7 +3,8 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-	</PropertyGroup>
+	  <UserSecretsId>eca7674b-60e4-48b7-a3e7-86d5a485623f</UserSecretsId>
+  </PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\UnifiedChat.Domain\UnifiedChat.Domain.csproj" />
